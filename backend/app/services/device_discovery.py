@@ -728,31 +728,42 @@ class DeviceDiscoveryService:
     async def get_local_network_info(self) -> dict:
         """
         Get local network information (IP and calculated subnet).
+        Uses multiple methods to find the real LAN IP.
         """
+        local_ip = "127.0.0.1"
+        is_local = False
+        
+        # Method 1: Try connecting to an external IP (most reliable)
         try:
-            # Create a dummy socket to determine local interface IP
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            # Connect to a public DNS server (doesn't send data)
             s.connect(("8.8.8.8", 80))
             local_ip = s.getsockname()[0]
             s.close()
-            
-            # Assume /24 subnet for local networks (standard for home/office)
-            # This is a safe default when we can't easily get the netmask without psutil
-            network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
-            
-            return {
-                "ip_address": local_ip,
-                "subnet": str(network),
-                "is_local": True
-            }
+            is_local = True
         except Exception:
-            # Fallback for offline/error cases
-            return {
-                "ip_address": "127.0.0.1",
-                "subnet": "192.168.1.0/24",
-                "is_local": False
-            }
+            # Method 2: Fallback to hostname resolution (works offline)
+            try:
+                hostname = socket.gethostname()
+                # iterating to find a non-loopback address could be better, but gethostbyname is standard
+                local_ip = socket.gethostbyname(hostname)
+                if not local_ip.startswith("127."):
+                    is_local = True
+            except Exception:
+                pass
+
+        # Calculate subnet
+        try:
+            # Default to /24 which is standard for LANs
+            network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
+            subnet_str = str(network)
+        except Exception:
+            subnet_str = "192.168.1.0/24"
+
+        return {
+            "ip_address": local_ip,
+            "subnet": subnet_str,
+            "is_local": is_local
+        }
 
 # Singleton instance
 device_discovery = DeviceDiscoveryService()
