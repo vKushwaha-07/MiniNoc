@@ -1,0 +1,5 @@
+2026-01-31 17:10:46 | WARNING  | alerts | [AlertSeverity.WARNING] 192.168.1.2: High latency: 311.0ms
+2026-01-31 17:34:07 | WARNING  | alerts | [AlertSeverity.WARNING] 192.168.1.3: High latency: 156.0ms
+2026-01-31 18:14:17 | WARNING  | alerts | [AlertSeverity.WARNING] 192.168.1.2: High latency: 280.0ms
+2026-01-31 18:26:59 | WARNING  | alerts | [AlertSeverity.WARNING] 192.168.1.3: High latency: 253.0ms
+2026-02-02 00:16:43 | WARNING  | alerts | [AlertSeverity.WARNING] 192.168.1.2: High latency: 319.0ms

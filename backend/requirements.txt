@@ -1,0 +1,30 @@
+# Backend Dependencies - Network Monitoring System (Vercel Mode)
+
+# Web Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Database (PostgreSQL for cloud, SQLite fallback)
+sqlalchemy>=2.0.25
+psycopg2-binary  # For Neon/Supabase Postgres
+
+# Utilities
+pydantic>=2.5.3
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# Async Support
+asyncio-throttle>=1.0.2
+
+# HTTP Client (for webhooks)
+aiohttp>=3.9.1
+httpx>=0.26.0
+
+# Observability
+prometheus-client
+
+# NOTE: The following are DISABLED for Vercel Serverless:
+# - ping3 (requires raw sockets)
+# - pysnmp (requires persistent process)
+# - celery, redis (requires background worker)
+# See VERCEL_LIMITATIONS.md for details.

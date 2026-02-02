@@ -1,0 +1,25 @@
+/**
+ * Component-specific styles for App.jsx layout.
+ * Most styles are now handled by Tailwind and index.css theme variables.
+ */
+
+/* Responsive Grid overrides if handling complex layouts not covered by utility classes */
+@media (min-width: 1440px) {
+  .xxl\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Status Dot Animation (Specific to UI components) */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  box-shadow: 0 0 0 2px var(--accent-secondary);
+}
