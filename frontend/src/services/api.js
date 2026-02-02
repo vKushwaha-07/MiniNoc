@@ -3,7 +3,7 @@
  * Handles all communication with the FastAPI backend.
  */
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 /**
  * Generic fetch wrapper with error handling.

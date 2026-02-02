@@ -26,17 +26,14 @@ async def lifespan(app: FastAPI):
     init_db()
     main_logger.info("Database initialized")
     
-    # Start background monitoring (Skip on Vercel serverless)
-    import os
-    if not os.getenv("VERCEL"):
-        monitoring_orchestrator.start_background_monitoring()
+    # Start background monitoring
+    monitoring_orchestrator.start_background_monitoring()
     
     yield
     
     # Shutdown
     main_logger.info("Shutting down Mini NOC")
-    if not os.getenv("VERCEL"):
-        monitoring_orchestrator.stop_background_monitoring()
+    monitoring_orchestrator.stop_background_monitoring()
 
 
 # Create FastAPI application with enhanced OpenAPI docs
