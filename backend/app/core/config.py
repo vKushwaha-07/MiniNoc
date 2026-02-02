@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./mini_noc.db"
     
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # On Vercel, use /tmp for SQLite if no DATABASE_URL is set
+        if os.getenv("VERCEL") and "sqlite:///./" in self.DATABASE_URL:
+            self.DATABASE_URL = "sqlite:////tmp/mini_noc.db"
+    
     # Monitoring Configuration
     SCAN_INTERVAL_SECONDS: int = 60
     PING_COUNT: int = 4
