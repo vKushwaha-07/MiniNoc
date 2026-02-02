@@ -730,21 +730,64 @@ class DeviceDiscoveryService:
         Get local network information (IP and calculated subnet).
         Uses multiple methods to find the real LAN IP.
         """
+        import subprocess
+        import platform
+        import re
+        
         local_ip = "127.0.0.1"
         is_local = False
         
-        # Method 1: Try connecting to an external IP (most reliable)
+        # Method 1: Try connecting to an external IP (most reliable when online)
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(1)  # Timeout after 1 second
             s.connect(("8.8.8.8", 80))
             local_ip = s.getsockname()[0]
             s.close()
-            is_local = True
+            if not local_ip.startswith("127."):
+                is_local = True
         except Exception:
-            # Method 2: Fallback to hostname resolution (works offline)
+            pass
+        
+        # Method 2: If Method 1 failed, use platform-specific command
+        if local_ip == "127.0.0.1" or local_ip.startswith("127."):
+            try:
+                if platform.system() == "Windows":
+                    # Run ipconfig and parse IPv4 addresses
+                    result = subprocess.run(
+                        ["ipconfig"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    # Find all IPv4 addresses
+                    matches = re.findall(r"IPv4.*?:\s*(\d+\.\d+\.\d+\.\d+)", result.stdout)
+                    for ip in matches:
+                        if not ip.startswith("127."):
+                            local_ip = ip
+                            is_local = True
+                            break
+                else:
+                    # Linux/Mac: use hostname -I
+                    result = subprocess.run(
+                        ["hostname", "-I"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    ips = result.stdout.strip().split()
+                    for ip in ips:
+                        if not ip.startswith("127."):
+                            local_ip = ip
+                            is_local = True
+                            break
+            except Exception:
+                pass
+        
+        # Method 3: Last resort - hostname resolution
+        if local_ip == "127.0.0.1":
             try:
                 hostname = socket.gethostname()
-                # iterating to find a non-loopback address could be better, but gethostbyname is standard
                 local_ip = socket.gethostbyname(hostname)
                 if not local_ip.startswith("127."):
                     is_local = True
@@ -753,7 +796,6 @@ class DeviceDiscoveryService:
 
         # Calculate subnet
         try:
-            # Default to /24 which is standard for LANs
             network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
             subnet_str = str(network)
         except Exception:
