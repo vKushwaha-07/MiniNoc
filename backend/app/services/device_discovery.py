@@ -725,5 +725,34 @@ class DeviceDiscoveryService:
             return None
 
 
+    async def get_local_network_info(self) -> dict:
+        """
+        Get local network information (IP and calculated subnet).
+        """
+        try:
+            # Create a dummy socket to determine local interface IP
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # Connect to a public DNS server (doesn't send data)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+            
+            # Assume /24 subnet for local networks (standard for home/office)
+            # This is a safe default when we can't easily get the netmask without psutil
+            network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
+            
+            return {
+                "ip_address": local_ip,
+                "subnet": str(network),
+                "is_local": True
+            }
+        except Exception:
+            # Fallback for offline/error cases
+            return {
+                "ip_address": "127.0.0.1",
+                "subnet": "192.168.1.0/24",
+                "is_local": False
+            }
+
 # Singleton instance
 device_discovery = DeviceDiscoveryService()

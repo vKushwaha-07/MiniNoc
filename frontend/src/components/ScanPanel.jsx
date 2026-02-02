@@ -3,16 +3,32 @@
  * Controls for subnet discovery, health checks, stop scanning, and clear devices.
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import * as api from '../services/api';
 
 export function ScanPanel({ onScanComplete }) {
-    const [subnet, setSubnet] = useState('192.168.1.0/24');
+    const [subnet, setSubnet] = useState('');
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState(null);
     const [error, setError] = useState(null);
     const [isClearing, setIsClearing] = useState(false);
     const abortControllerRef = useRef(null);
+
+    // Load local subnet on mount
+    useEffect(() => {
+        const loadLocalNet = async () => {
+            try {
+                const info = await api.getLocalNetwork();
+                if (info && info.subnet) {
+                    setSubnet(info.subnet);
+                }
+            } catch (err) {
+                // Fallback to default if API fails
+                setSubnet('192.168.1.0/24');
+            }
+        };
+        loadLocalNet();
+    }, []);
 
     const handleDiscover = async () => {
         setIsScanning(true);

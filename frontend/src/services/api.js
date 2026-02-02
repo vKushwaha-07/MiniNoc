@@ -118,6 +118,12 @@ export async function resolveAllAlerts(params = {}) {
 
 // ============== Scanning ==============
 
+// ============== Scanning ==============
+
+export async function getLocalNetwork() {
+    return fetchApi('/discovery/local-network');
+}
+
 export async function discoverSubnet(subnet, addDiscovered = true) {
     return fetchApi('/scan/discover', {
         method: 'POST',

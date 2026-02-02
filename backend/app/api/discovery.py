@@ -158,4 +158,15 @@ async def enrich_all_devices(
     
     db.commit()
     
+    db.commit()
+    
     return results
+
+
+@router.get("/local-network")
+async def get_local_network():
+    """
+    Get the local network information (IP and subnet).
+    Used to pre-fill the discovery subnet field.
+    """
+    return await device_discovery.get_local_network_info()
